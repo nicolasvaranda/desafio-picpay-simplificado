@@ -1,5 +1,6 @@
 package br.com.picpay_desafio_backend.transaction;
 
+import br.com.picpay_desafio_backend.exception.InvalidTransactionException;
 import br.com.picpay_desafio_backend.wallet.Wallet;
 import br.com.picpay_desafio_backend.wallet.WalletRepository;
 import br.com.picpay_desafio_backend.wallet.WalletType;
@@ -31,6 +32,8 @@ public class TransactionService {
         walletRepository.save(payeeWallet.credit(transaction.value()));
 
         // 4 - chamar serviços externos
+        // authorize transaction
+        
 
         return newTransaction;
     }
@@ -44,8 +47,9 @@ public class TransactionService {
         walletRepository.findById(transaction.payee())
                 .map(payee -> walletRepository.findById(transaction.payer())
                         .map(payer -> isTransactionValid(transaction, payer) ? transaction : null)
-                        .orElseThrow())
-                .orElseThrow();
+                        .orElseThrow(() -> new InvalidTransactionException("Invalid transaction - %s".formatted(transaction))))
+                .orElseThrow(
+                        () -> new InvalidTransactionException("Invalid transaction - %s".formatted(transaction)));
     }
 
     private boolean isTransactionValid(Transaction transaction, Wallet payer) {
