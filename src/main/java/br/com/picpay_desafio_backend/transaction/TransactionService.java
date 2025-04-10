@@ -1,5 +1,6 @@
 package br.com.picpay_desafio_backend.transaction;
 
+import br.com.picpay_desafio_backend.authorization.AuthorizerService;
 import br.com.picpay_desafio_backend.exception.InvalidTransactionException;
 import br.com.picpay_desafio_backend.wallet.Wallet;
 import br.com.picpay_desafio_backend.wallet.WalletRepository;
@@ -11,11 +12,13 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final WalletRepository walletRepository;
+    private final AuthorizerService authorizerService;
 
 
-    public TransactionService(TransactionRepository transactionRepository, WalletRepository walletRepository) {
+    public TransactionService(TransactionRepository transactionRepository, WalletRepository walletRepository, AuthorizerService authorizerService) {
         this.transactionRepository = transactionRepository;
         this.walletRepository = walletRepository;
+        this.authorizerService = authorizerService;
     }
 
     public Transaction create(Transaction transaction) {
@@ -33,7 +36,7 @@ public class TransactionService {
 
         // 4 - chamar serviços externos
         // authorize transaction
-        
+        authorizerService.authorize(transaction);
 
         return newTransaction;
     }
